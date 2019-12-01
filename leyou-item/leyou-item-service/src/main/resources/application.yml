@@ -1,0 +1,28 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: item-service
+  cloud:
+    config:
+      enabled: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/leyou
+    username: root
+    password: mysql
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:10086/eureka
+  instance:
+    leaseRenewalIntervalInSeconds: 5 # 每隔5秒发送一次心跳
+    leaseExpirationDurationInSeconds: 10 # 10秒不发送就过期
+    preferIpAddress: true
+    ipAddress: 127.0.0.1
+    instanceId: ${spring.application.name}:${server.port}
