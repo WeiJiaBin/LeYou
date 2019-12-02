@@ -14,11 +14,14 @@ import com.leyou.search.pojo.SearchResult;
 import com.leyou.search.repository.GoodsRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +29,7 @@ import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -159,7 +163,8 @@ public class SearchService {
         //自定义查询构建器
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         //添加查询条件
-        queryBuilder.withQuery(QueryBuilders.matchQuery("all", request.getKey()).operator(Operator.AND));
+        QueryBuilder basicQuery = QueryBuilders.matchQuery("all", request.getKey()).operator(Operator.AND);
+        queryBuilder.withQuery(basicQuery);
         //添加分页，分页页码从0开始
         queryBuilder.withPageable(PageRequest.of(request.getPage() - 1, request.getSize()));
         //添加结果集过滤
@@ -180,10 +185,63 @@ public class SearchService {
         List<Map<String, Object>> categories = getCategoryAggResult(goodsPage.getAggregation(categoryAggName));
         List<Brand> brands = getBrandAggResult(goodsPage.getAggregation(brandAggName));
 
+        List<Map<String, Object>> specs = null;
 
+        //判断是否是一个分类，只有一个分类时才进行参数聚合
+        if (!CollectionUtils.isEmpty(categories) && categories.size() == 1) {
+            //对规格参数进行聚合
+            specs =  getParamAggResult((Long)categories.get(0).get("id"),basicQuery);
+        }
 
         System.out.println("查询结果集为"+goodsPage.toString());
-        return new SearchResult (goodsPage.getTotalElements(), (long) goodsPage.getTotalPages(), goodsPage.getContent(),categories,brands);
+        return new SearchResult (goodsPage.getTotalElements(), (long) goodsPage.getTotalPages(), goodsPage.getContent(),categories,brands,specs);
+    }
+
+    /**
+     * 根据查询条件聚合规格参数
+     * @param cid
+     * @param basicQuery
+     * @return
+     */
+    private List<Map<String, Object>> getParamAggResult(Long cid, QueryBuilder basicQuery) {
+
+        //自定义查询对象构建
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        //添加基本查询条件
+        queryBuilder.withQuery(basicQuery);
+        //查询要聚合的规格参数
+        List<SpecParam> params = this.specificationClient.queryParams(null, cid, null, true);
+
+        //添加规格参数的聚合
+        params.forEach(param ->{
+            queryBuilder.addAggregation(AggregationBuilders.terms(param.getName()).field("specs."+param.getName()+".keyword"));
+        });
+
+        //添加结果集过滤
+        queryBuilder.withSourceFilter(new FetchSourceFilter(new String[]{},null));
+        //执行聚合查询,获取聚合结果集
+        AggregatedPage<Goods> goodsPage = (AggregatedPage<Goods>) this.goodsRepository.search(queryBuilder.build());
+
+
+        List<Map<String, Object>> specs = new ArrayList<>();
+        //解析聚合结果集, key-聚合名称（规格参数名） value-聚合对象
+        Map<String, Aggregation> aggregationMap = goodsPage.getAggregations().asMap();
+        for (Map.Entry<String, Aggregation> entry : aggregationMap.entrySet()) {
+            //初始化一个map{k:规格参数名，value：options 聚合的规格参数值}
+            Map<String, Object> map = new HashMap<>();
+            map.put("k", entry.getKey());
+            //初始化一个options集合，收集桶中的key
+            ArrayList<String> options = new ArrayList<>();
+            //获取聚合
+            StringTerms terms = (StringTerms) entry.getValue();
+            //获取桶集合
+            terms.getBuckets().forEach(bucket -> {
+                options.add(bucket.getKeyAsString());
+            });
+            specs.add(map);
+            map.put("options", options);
+        }
+        return specs;
     }
 
     /**
