@@ -38,20 +38,30 @@ public class SpecificationController {
 
     /**
      * 根据条件参数查询规格参数
+     *
      * @param gid
      * @return
      */
     @GetMapping("params")
     public ResponseEntity<List<SpecParam>> queryParams(
-            @RequestParam(value = "gid",required = false) Long gid,
-            @RequestParam(value = "cid",required = false) Long cid,
-            @RequestParam(value = "generic",required = false) Boolean generic,
-            @RequestParam(value = "searching",required = false) Boolean searching
+            @RequestParam(value = "gid", required = false) Long gid,
+            @RequestParam(value = "cid", required = false) Long cid,
+            @RequestParam(value = "generic", required = false) Boolean generic,
+            @RequestParam(value = "searching", required = false) Boolean searching
     ) {
-        List<SpecParam> params = this.specificationService.queryParams(gid,cid,generic,searching);
+        List<SpecParam> params = this.specificationService.queryParams(gid, cid, generic, searching);
         if (CollectionUtils.isEmpty(params)) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(params);
+    }
+
+    @GetMapping("group/param/{cid}")
+    public ResponseEntity<List<SpecGroup>> queryGroupsWithParam(@PathVariable("cid") Long cid) {
+        List<SpecGroup> groups = this.specificationService.queryGroupsWithParam(cid);
+        if (CollectionUtils.isEmpty(groups)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(groups);
     }
 }
