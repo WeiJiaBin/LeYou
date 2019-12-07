@@ -308,5 +308,25 @@ public class SearchService {
         }).collect(Collectors.toList());
 
     }
+
+    /**
+     * 添加
+     * @param id
+     */
+    public void save(Long id) throws IOException {
+        Spu spu = this.goodsClient.querySpuById(id);
+        Goods goods = this.buildGoods(spu);
+        this.goodsRepository.save(goods);
+
+    }
+
+    /**
+     * 删除
+     * @param id
+     */
+    public void delete(Long id) {
+        this.goodsRepository.deleteById(id);
+
+    }
 }
 

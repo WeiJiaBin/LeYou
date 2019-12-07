@@ -51,11 +51,11 @@ public class UploadService {
             }
 
             // 保存到服务器
-           // file.transferTo(new File("D:\\leyou\\images\\" + originalFilename));
+           // file.transferTo(new File("D:\\leyou\\image\\" + originalFilename));
             String ext = StringUtils.substringAfterLast(originalFilename, ".");
             StorePath storePath = this.storageClient.uploadFile(file.getInputStream(), file.getSize(), ext, null);
             // 生成url地址，返回
-            return "http://images.leyou.com/" + storePath.getFullPath();
+            return "http://image.leyou.com/" + storePath.getFullPath();
         } catch (IOException e) {
             LOGGER.info("服务器内部错误：{}", originalFilename);
             e.printStackTrace();
