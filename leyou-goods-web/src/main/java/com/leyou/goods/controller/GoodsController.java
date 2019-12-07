@@ -1,5 +1,6 @@
 package com.leyou.goods.controller;
 
+import com.leyou.goods.service.GoodsHtmlService;
 import com.leyou.goods.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,8 @@ public class GoodsController {
     @Autowired
     private GoodsService goodsService;
 
+    @Autowired
+    private GoodsHtmlService goodsHtmlService;
 
     @GetMapping("item/{id}.html")
     public String toItemPage(@PathVariable("id") Long id, Model model) {
@@ -22,6 +25,7 @@ public class GoodsController {
         Map<String, Object> map = this.goodsService.loadData(id);
 
         model.addAllAttributes(map);
+        this.goodsHtmlService.asyncExcute(id);
 
         return "item";
     }
