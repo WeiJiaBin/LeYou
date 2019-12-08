@@ -1,0 +1,25 @@
+server:
+  port: 8086
+spring:
+  application:
+    name: sms-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/leyou?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: mysql
+  rabbitmq:
+    host: 192.168.15.128
+    username: leyou
+    password: leyou
+    virtual-host: /leyou
+leyou:
+  sms:
+    accessKeyId: LTAI4FjR8iDFPrWwcLpqk7qP
+    accessKeySecret: NH6OGsKchBjNQ1WcToMolSwrzN3L1z
+    verifyCodeTemplate: SMS_177360244
+    sign_name: BiniCan
+eureka:
+  client:
+    register-with-eureka: false
+    serviceUrl:
+      defaultZone: http://127.0.0.1:10086/eureka
