@@ -23,6 +23,10 @@ public class CodecUtils {
         return DigestUtils.sha512Hex(salt + DigestUtils.sha512Hex(data));
     }
 
+    /**
+     * 生成盐的方法
+     * @return
+     */
     public static String generateSalt(){
         return StringUtils.replace(UUID.randomUUID().toString(), "-", "");
     }

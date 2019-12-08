@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Controller
 public class UserController {
 
@@ -38,10 +40,26 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    /**
+     * 注册
+     * @param user
+     * @param code
+     * @return
+     */
     @PostMapping("register")
-    public ResponseEntity<Void> register(User user, @RequestParam("code") String code) {
+    public ResponseEntity<Void> register(@Valid User user, @RequestParam("code") String code) {
         this.userService.registr(user, code);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
+    @GetMapping("query")
+    public ResponseEntity<User> queryUser(@RequestParam("username") String username, @RequestParam("password") String password) {
+        User user = this.userService.queryUser(username, password);
+        if (user == null) {
+            return ResponseEntity.badRequest().build();//参数错误
+        }
+        return ResponseEntity.ok(user);
     }
 
 }

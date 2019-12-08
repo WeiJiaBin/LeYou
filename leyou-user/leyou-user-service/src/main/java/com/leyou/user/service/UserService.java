@@ -3,6 +3,7 @@ package com.leyou.user.service;
 import com.leyou.common.utils.NumberUtils;
 import com.leyou.user.mapper.UserMapper;
 import com.leyou.user.pojo.User;
+import com.leyou.user.utils.CodecUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -62,6 +64,7 @@ public class UserService {
         Map<String, String> msg = new HashMap<>();
         msg.put("phone", phone);
         msg.put("code", code);
+        //发送验证码
         this.amqpTemplate.convertAndSend("leyou.sms.exchange", "sms.verify.code", msg);
         //把验证码保存到redis中
         this.redisTemplate.opsForValue().set(KEY_PREFIX + phone, code, 5, TimeUnit.MINUTES);
@@ -78,11 +81,40 @@ public class UserService {
         String redisCode = this.redisTemplate.opsForValue().get(KEY_PREFIX + user.getPhone());
 
         //检验验证码
-
+        if (!StringUtils.equals(code, redisCode)) {
+            return;
+        }
         //生成盐
-
+        String salt = CodecUtils.generateSalt();
+        user.setSalt(salt);
         //加盐加密
-
+        user.setPassword(CodecUtils.md5Hex(user.getPassword(),salt));
         //新增用户
+        user.setId(null);
+        user.setCreated(new Date());
+        this.userMapper.insertSelective(user);
+
    }
+
+    public User queryUser(String username, String password) {
+
+        User record = new User();
+        record.setUsername(username);
+        User user = this.userMapper.selectOne(record);
+
+        //判断user是否为空
+        if (user == null) {
+            return null;
+        }
+
+        //获取盐，对用户输入的密码加密
+         password = CodecUtils.md5Hex(password, user.getSalt());
+
+        //和数据库的秘密比较
+        if (StringUtils.equals(password, user.getPassword())) {
+            return user;
+        }
+        return null;
+    }
+
 }
