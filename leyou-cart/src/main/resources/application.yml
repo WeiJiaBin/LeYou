@@ -1,0 +1,23 @@
+server:
+  port: 8088
+spring:
+  application:
+    name: cart-service
+  redis:
+    host: 192.168.15.128
+  datasource:
+    url: jdbc:mysql://localhost:3306/leyou
+    username: root
+    password: mysql
+#  data:
+#    mongodb:
+#      host: 192.168.15.128
+#      database: cart
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:10086/eureka
+    registry-fetch-interval-seconds: 10
+  instance:
+    lease-renewal-interval-in-seconds: 5 # 每隔5秒发送一次心跳
+    lease-expiration-duration-in-seconds: 10 # 10秒不发送就过期
