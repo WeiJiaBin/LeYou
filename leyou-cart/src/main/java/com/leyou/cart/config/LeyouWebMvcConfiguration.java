@@ -7,21 +7,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-//@EnableConfigurationProperties(JwtProperties.class)
 @Configuration
+@EnableConfigurationProperties(JwtProperties.class)
 public class LeyouWebMvcConfiguration implements WebMvcConfigurer {
 
     @Autowired
     private LoginInterceptor loginInterceptor;
 
-    /*@Autowired
+    @Autowired
     private JwtProperties jwtProperties;
 
     @Bean
     public LoginInterceptor loginInterceptor() {
         return new LoginInterceptor(jwtProperties);
-    }*/
-
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
