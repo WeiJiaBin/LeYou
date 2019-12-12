@@ -1,6 +1,8 @@
 package com.leyou.order.service;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.leyou.common.PageResult;
 import com.leyou.common.poji.UserInfo;
 import com.leyou.common.utils.IdWorker;
@@ -14,7 +16,6 @@ import com.leyou.order.pojo.OrderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,7 +97,7 @@ public class OrderService {
             // 创建查询条件
             Page<Order> pageInfo = (Page<Order>) this.orderMapper.queryOrderList(user.getId(), status);
 
-            return new PageResult<>(pageInfo.getTotal(), pageInfo);
+            return new PageResult<Order>(pageInfo.getTotal(), pageInfo);
         } catch (Exception e) {
             logger.error("查询订单出错", e);
             return null;
