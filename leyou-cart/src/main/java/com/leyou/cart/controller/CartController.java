@@ -17,8 +17,9 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping
+    @PostMapping("add")
     public ResponseEntity<Void> addCart(@RequestBody Cart cart) {
+        System.out.println("add");
         this.cartService.addCart(cart);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -26,6 +27,7 @@ public class CartController {
     @GetMapping
     public ResponseEntity<List<Cart>> queryCarts() {
         List<Cart> carts = this.cartService.queryCarts();
+        System.out.println("GetMapping");
         if (CollectionUtils.isEmpty(carts)) {
             return ResponseEntity.notFound().build();
         }

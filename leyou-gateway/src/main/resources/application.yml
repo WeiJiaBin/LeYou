@@ -53,3 +53,4 @@ leyou:
       - /api/user/check
       - /api/user/code
       - /api/item
+      - /api/cart
