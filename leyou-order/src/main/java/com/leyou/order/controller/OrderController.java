@@ -1,6 +1,7 @@
 package com.leyou.order.controller;
 
-import com.leyou.common.pojo.PageResult;
+
+import com.leyou.common.PageResult;
 import com.leyou.order.pojo.Order;
 import com.leyou.order.service.OrderService;
 import com.leyou.utils.PayHelper;
