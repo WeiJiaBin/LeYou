@@ -19,7 +19,7 @@ import javax.validation.Valid;
 @RequestMapping("order")
 @Api("订单服务接口")
 public class OrderController {
-
+        //@RequestMapping("order")order-service: /order/** # 订单服务接口
     @Autowired
     private OrderService orderService;
 
