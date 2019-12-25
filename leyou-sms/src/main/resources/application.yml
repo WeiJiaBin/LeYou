@@ -14,9 +14,9 @@ spring:
     virtual-host: /leyou
 leyou:
   sms:
-    accessKeyId: LTAI4FjR8iDFPrWwcLpqk7qP
-    accessKeySecret: NH6OGsKchBjNQ1WcToMolSwrzN3L1z
-    verifyCodeTemplate: SMS_177360244
+    accessKeyId:
+    accessKeySecret:
+    verifyCodeTemplate:
     sign_name: BiniCan
 eureka:
   client:
